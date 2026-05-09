@@ -1,0 +1,17 @@
+{
+  "clip_id": "hotel_handover_001",
+  "relative_path": "references/hotel_handover_001.mp4",
+  "clip_duration_s": 14.0,
+  "context": {
+    "task_type": "handover",
+    "scene_type": "hotel",
+    "notes": "Guest-facing transfer example with delayed retraction after contact."
+  },
+  "behavior_tags": [
+    "warm",
+    "patient",
+    "soft-finish"
+  ],
+  "review_status": "quality_review",
+  "source": "field_capture"
+}

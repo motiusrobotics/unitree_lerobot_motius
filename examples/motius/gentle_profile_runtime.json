@@ -1,0 +1,26 @@
+{
+  "profile": "Gentle",
+  "profile_id": "motius.gentle.v1",
+  "task": "handover",
+  "runtime_adapter": {
+    "locomotion": {
+      "speed_scale": 0.82,
+      "finish_softness": 0.72
+    },
+    "arrival": {
+      "pause_ms": 420,
+      "stop_distance_m": 0.95
+    },
+    "handover": {
+      "hold_ms": 620
+    },
+    "arm": {
+      "ee_smoothing": 0.96
+    }
+  },
+  "tags": [
+    "warm",
+    "patient",
+    "soft"
+  ]
+}
