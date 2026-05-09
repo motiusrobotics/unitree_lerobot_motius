@@ -11,11 +11,7 @@
       "scene_type": "hotel",
       "notes": "Guest-facing transfer example with delayed retraction after contact."
     },
-    "behavior_tags": [
-      "warm",
-      "patient",
-      "soft-finish"
-    ],
+    "behavior_tags": ["warm", "patient", "soft-finish"],
     "review_status": "quality_review",
     "source": "field_capture"
   },

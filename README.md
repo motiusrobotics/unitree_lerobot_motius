@@ -14,7 +14,7 @@ Robot behavior in human-facing tasks is often "tuned" into hidden parameters, sc
 - **Hard to transfer** — settings don't travel across robots or sites
 - **Hard to compare** — no version history, no baseline
 
-Motius proposes a **behavior layer**: a reusable profile surface that resolves into explicit execution fields (speed scaling, pause timing, stopping distance, end-effector smoothing) while preserving controller ownership.
+Motius proposes a **behavior layer**: a reusable profile surface that resolves into explicit execution fields while preserving controller ownership.
 
 ---
 
@@ -23,32 +23,34 @@ Motius proposes a **behavior layer**: a reusable profile surface that resolves i
 ### Core Library — `unitree_lerobot.motius_profiles`
 
 ```python
-from unitree_lerobot import get_motius_profile
+from unitree_lerobot import get_profile
 
 # Load a profile
-profile = get_motius_profile("gentle")
+profile = get_profile("gentle")
 
 # Inspect the fields that drive runtime behavior
-print(profile.speed_scale)       # 0.82
-print(profile.pause_duration_s)  # 1.05
-print(profile.stopping_distance_m)  # 0.90
-print(profile.ee_smoothing)      # 0.85
+print(profile.speed_scale)           # 0.82
+print(profile.pause_ms)             # 420
+print(profile.approach_distance_m)  # 0.95
+print(profile.ee_smoothing)         # 0.96
 ```
 
 ### Interaction Profiles
 
-| Profile | Character | speed_scale | pause_duration_s | stopping_distance_m | ee_smoothing |
-|---------|-----------|-------------|------------------|--------------------|--------------|
-| `standard` | Baseline runtime feel | 1.00 | 0.50 | 0.75 | 0.80 |
-| `gentle` | Slower, calmer, more pause | 0.82 | 1.05 | 0.90 | 0.85 |
-| `attentive` | Alert, quick response | 1.10 | 0.35 | 0.65 | 0.75 |
+| Profile | Character | speed_scale | pause_ms | approach_distance_m | ee_smoothing | hold_ms | finish_softness |
+|---------|-----------|-------------|----------|--------------------|--------------|---------|----------------|
+| `standard` | Baseline runtime feel | 1.00 | 200 | 0.80 | 0.90 | 350 | 0.30 |
+| `gentle` | Slower, calmer, more pause | 0.82 | 420 | 0.95 | 0.96 | 620 | 0.72 |
+| `attentive` | Alert, quick response | 0.92 | 300 | 0.88 | 0.94 | 420 | 0.55 |
 
 ### Schema — `unitree_lerobot.motius_schema`
 
 Minimal data models for:
-- `InteractionProfile` — profile definition with execution fields
-- `ReferenceClip` — a short human behavior reference clip record
-- `DatasetEntry` — profile-conditioned dataset entry with attached reference clip
+- `TaskContext` — task + scene type with enum validation
+- `HumanReferenceClip` — a short human behavior reference clip record
+- `BehaviorDatasetEntry` — profile-conditioned dataset entry with attached reference clip
+
+Supported `task_type` values: `handover`, `approach_stop`, `wait_behavior`, `corridor_etiquette`, `push_object`
 
 ---
 
@@ -57,6 +59,7 @@ Minimal data models for:
 ### 1. Install
 
 ```bash
+git clone https://github.com/motiusrobotics/unitree_lerobot_motius.git
 cd unitree_lerobot_motius
 pip install -e .
 ```
@@ -64,44 +67,38 @@ pip install -e .
 ### 2. Use a Profile in Runtime
 
 ```python
-from unitree_lerobot import get_motius_profile
+from unitree_lerobot import get_profile, profile_to_runtime_adapter
 
-profile = get_motius_profile("gentle")
+profile = get_profile("gentle")
 
-# Map profile fields into your runtime adapter
-runtime_config = {
-    "speed_scale": profile.speed_scale,
-    "pause_duration_s": profile.pause_duration_s,
-    "stopping_distance_m": profile.stopping_distance_m,
-    "ee_smoothing": profile.ee_smoothing,
-}
-
-# Apply to robot controller / motion planner
-apply_to_controller(runtime_config)
+# Map profile fields into a runtime-facing adapter surface
+runtime = profile_to_runtime_adapter(profile, task="handover")
+# runtime is a dict with keys: profile, profile_id, task,
+#   runtime_adapter{locomotion, arrival, handover, arm}, tags
 ```
-
-See `examples/motius/gentle_profile_runtime.json` for the full adapter output example.
 
 ### 3. Attach a Reference Clip to a Dataset Entry
 
 ```python
-from unitree_lerobot.motius_schema import DatasetEntry, ReferenceClip
+from unitree_lerobot import HumanReferenceClip, BehaviorDatasetEntry, TaskContext
 
-clip = ReferenceClip(
+clip = HumanReferenceClip(
     clip_id="handover_ref_001",
-    interaction_type="handover",
-    profile_id="gentle",
-    duration_s=12.4,
-    human_label="natural",
+    relative_path="references/handover_ref_001.mp4",
+    clip_duration_s=12.4,
+    context=TaskContext(task_type="handover", scene_type="hotel"),
+    behavior_tags=("warm", "patient", "soft"),
 )
 
-entry = DatasetEntry(
-    episode_id="epi_001",
-    profile_id="gentle",
+entry = BehaviorDatasetEntry(
+    entry_id="epi_001",
+    robot_type="Unitree_G1",
+    active_profile="gentle",
     reference_clip=clip,
 )
 
-print(entry.model_dump_json(indent=2))
+print(entry.dataset_key)
+# → Unitree_G1:gentle:handover:epi_001
 ```
 
 ---
@@ -110,17 +107,18 @@ print(entry.model_dump_json(indent=2))
 
 ```
 unitree_lerobot_motius/
+├── .github/workflows/test.yml    # CI: pytest + ruff
+├── README.md
 ├── unitree_lerobot/
-│   ├── __init__.py              # Public exports: get_motius_profile
-│   ├── motius_profiles.py      # Profile definitions & field values
-│   └── motius_schema.py        # Pydantic schemas: Profile, ReferenceClip, DatasetEntry
+│   ├── __init__.py               # Public exports
+│   ├── motius_profiles.py        # Profile definitions & field values
+│   └── motius_schema.py          # Pydantic-like dataclass schemas
 ├── examples/motius/
-│   ├── README.md                # This file
-│   ├── gentle_profile_runtime.json      # Runtime adapter output example
-│   ├── reference_clip_example.json      # Human reference clip record example
-│   └── dataset_entry_example.json       # Profile-conditioned dataset entry example
+│   ├── gentle_profile_runtime.json
+│   ├── reference_clip_example.json
+│   └── dataset_entry_example.json
 └── test/
-    └── test_motius_profiles.py  # Profile unit tests
+    └── test_motius_profiles.py   # Profile + schema unit tests
 ```
 
 ---
@@ -131,7 +129,7 @@ This scaffold corresponds to the Motius prototype described in:
 
 > **"Motius: Interaction Profiles as a Behavior Layer for Human-Facing Robot Control"**
 > *Human–Robot Interaction 2026*
-> 🔗 [motiusrobotics/unitree_lerobot_motius](https://github.com/motiusrobotics/unitree_lerobot_motius)
+> 🔗 [github.com/motiusrobotics/unitree_lerobot_motius](https://github.com/motiusrobotics/unitree_lerobot_motius)
 
 Key numbers from the paper (Standard vs. Gentle on Unitree G1):
 

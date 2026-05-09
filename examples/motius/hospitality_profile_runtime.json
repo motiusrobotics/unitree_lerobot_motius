@@ -1,0 +1,22 @@
+{
+  "profile": "Hospitality",
+  "profile_id": "motius.hospitality.v1",
+  "task": "handover",
+  "runtime_adapter": {
+    "locomotion": {
+      "speed_scale": 0.75,
+      "finish_softness": 0.80
+    },
+    "arrival": {
+      "pause_ms": 500,
+      "stop_distance_m": 1.00
+    },
+    "handover": {
+      "hold_ms": 700
+    },
+    "arm": {
+      "ee_smoothing": 0.97
+    }
+  },
+  "tags": ["formal", "warm", "attentive"]
+}

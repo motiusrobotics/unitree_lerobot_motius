@@ -18,9 +18,5 @@
       "ee_smoothing": 0.96
     }
   },
-  "tags": [
-    "warm",
-    "patient",
-    "soft"
-  ]
+  "tags": ["warm", "patient", "soft"]
 }

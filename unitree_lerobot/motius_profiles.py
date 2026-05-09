@@ -37,6 +37,22 @@ class InteractionProfile:
 
 
 PROFILE_LIBRARY: dict[str, InteractionProfile] = {
+    "hospitality": InteractionProfile(
+        name="Hospitality",
+        profile_id="motius.hospitality.v1",
+        scene_fit=("hotel_lobby", "front_desk", "formal_greeting"),
+        speed_scale=0.75,
+        pause_ms=500,
+        approach_distance_m=1.00,
+        ee_smoothing=0.97,
+        hold_ms=700,
+        finish_softness=0.80,
+        tags=("formal", "warm", "attentive"),
+        traits=BehaviorTraits(
+            interaction_tone="formal / warm / attentive",
+            motion_traits="slowest approach, longest pause, widest stopping distance, softest finish",
+        ),
+    ),
     "standard": InteractionProfile(
         name="Standard",
         profile_id="motius.standard.v1",
@@ -86,6 +102,11 @@ PROFILE_LIBRARY: dict[str, InteractionProfile] = {
         ),
     ),
 }
+
+
+def get_motius_profile(name: str) -> InteractionProfile:
+    """Alias of get_profile for backwards-compatible API."""
+    return get_profile(name)
 
 
 def get_profile(name: str) -> InteractionProfile:
