@@ -1,104 +1,118 @@
-# 🤖 Motius — Behavior Layer for Human-Facing Robot Control
+# 🤖 Motius Robotics
 
-**`unitree_lerobot_motius`** is a lightweight behavior-layer scaffold that packages robot interaction style into reusable, inspectable **interaction profiles** — sitting above the motion controller as an explicit software surface rather than scattered runtime parameters.
+> **AI-Adaptive Behavior Layer for Service Robots**
+> Same robot. Different feel for everyone.
 
-Built on top of [unitree_lerobot](https://github.com/unitreerobotics/unitree_lerobot) and validated on a **Unitree G1** humanoid platform.
-
----
-
-## ✨ What Problem It Solves
-
-Robot behavior in human-facing tasks is often "tuned" into hidden parameters, scene-local scripts, and operator intuition. This makes behavior:
-
-- **Hard to inspect** — you can't see what profile a robot is running
-- **Hard to transfer** — settings don't travel across robots or sites
-- **Hard to compare** — no version history, no baseline
-
-Motius proposes a **behavior layer**: a reusable profile surface that resolves into explicit execution fields while preserving controller ownership.
+[![GitHub stars](https://img.shields.io/github/stars/motiusrobotics/unitree_lerobot_motius?style=flat&logo=github)](https://github.com/motiusrobotics/unitree_lerobot_motius)
+[![arXiv](https://img.shields.io/badge/arXiv-2026-orange?style=flat&logo=arxiv)](https://arxiv.org)
+[![Unitree G1](https://img.shields.io/badge/Platform-Unitree%20G1-blue?style=flat&logo=robotics)](https://github.com/unitreerobotics/unitree_lerobot)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green?style=flat&logo=apache)](LICENSE)
 
 ---
 
-## 📦 What's Included
+## 🎯 What Is Motius?
 
-### Core Library — `unitree_lerobot.motius_profiles`
+Motius Robotics builds an **AI-adaptive behavior layer** that sits above the robot controller — translating learned interaction patterns into runtime-safe motion parameters in real time.
 
-```python
-from unitree_lerobot import get_profile
+Service robots already move through hotels, lobbies, and public environments. What has been missing is a behavior layer that **adapts instead of being rebuilt** property by property. The same robot feels different in every deployment — not because of the hardware, but because nobody built a data-driven way to make behavior **transferable and adaptive**.
 
-# Load a profile
-profile = get_profile("gentle")
+> The more the layer runs, the smarter it gets. Community reference data is the long-term moat.
 
-# Inspect the fields that drive runtime behavior
-print(profile.speed_scale)           # 0.82
-print(profile.pause_ms)             # 420
-print(profile.approach_distance_m)  # 0.95
-print(profile.ee_smoothing)         # 0.96
+---
+
+## 🔬 Current Proof
+
+| Metric | Value |
+|--------|-------|
+| **Platform** | Unitree G1 humanoid robot |
+| **Visible tasks** | Handover · Approach · Push |
+| **Human raters** | Real clip-based study participants |
+| **Adaptive fields** | Speed · Pause · Distance · Smoothing |
+| **Gentle preference** | 92–96% across tasks |
+
+---
+
+## 🧩 How It Works
+
+```
+┌──────────────────────────────────────────────────────┐
+│  1. PERCEIVE                                          │
+│  User type + Scene + Interaction cues                 │
+└──────────────────────┬───────────────────────────────┘
+                       ▼
+┌──────────────────────────────────────────────────────┐
+│  2. ADAPT                                             │
+│  Speed, pause, distance shift at runtime              │
+│  Same robot · Same task · Different feel              │
+└──────────────────────┬───────────────────────────────┘
+                       ▼
+┌──────────────────────────────────────────────────────┐
+│  3. VALIDATE                                         │
+│  Cross-task proof + human preference ratings           │
+└──────────────────────┬───────────────────────────────┘
+                       ▼
+┌──────────────────────────────────────────────────────┐
+│  4. DEPLOY                                            │
+│  Adapter → Controller boundary (safety preserved)      │
+└──────────────────────────────────────────────────────┘
 ```
 
-### Interaction Profiles
+---
 
-| Profile | Character | speed_scale | pause_ms | approach_distance_m | ee_smoothing | hold_ms | finish_softness |
-|---------|-----------|-------------|----------|--------------------|--------------|---------|----------------|
-| `standard` | Baseline runtime feel | 1.00 | 200 | 0.80 | 0.90 | 350 | 0.30 |
-| `gentle` | Slower, calmer, more pause | 0.82 | 420 | 0.95 | 0.96 | 620 | 0.72 |
-| `attentive` | Alert, quick response | 0.92 | 300 | 0.88 | 0.94 | 420 | 0.55 |
+## 🌍 Data Flywheel
 
-### Schema — `unitree_lerobot.motius_schema`
+```
+Contributors upload clips
+        ▼
+Reference Network structures data
+        ▼
+Adaptive models improve
+        ▼
+Robots behave better
+        ▼
+More deployments → more data → smarter layer
+```
 
-Minimal data models for:
-- `TaskContext` — task + scene type with enum validation
-- `HumanReferenceClip` — a short human behavior reference clip record
-- `BehaviorDatasetEntry` — profile-conditioned dataset entry with attached reference clip
+---
 
-Supported `task_type` values: `handover`, `approach_stop`, `wait_behavior`, `corridor_etiquette`, `push_object`
+## 📦 Interaction Profiles
+
+Profiles are **learned behavior bands**, not frozen numbers.
+
+| Profile | Character | Speed | Pause | Distance | Smoothing |
+|---------|-----------|-------|-------|----------|-----------|
+| **Standard** | Neutral · Direct · Efficient | 1.00 | 200ms | 0.80m | 0.90 |
+| **Gentle** | Warm · Patient · Soft | 0.82 | 420ms | 0.95m | 0.96 |
+| **Attentive** | Alert · Polished · Social | 0.92 | 300ms | 0.88m | 0.94 |
+
+### What "Adaptive" Means in Practice
+
+> **Same Gentle profile — different parameters for different people**
+
+| User | Speed | Pause | Distance |
+|------|-------|-------|----------|
+| Elder approaches | 0.65 | 650ms | 1.10m |
+| Child runs nearby | 0.50 | 800ms | 1.25m |
+| Business user | 0.90 | 250ms | 0.82m |
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Install
-
 ```bash
+# Clone the scaffold
 git clone https://github.com/motiusrobotics/unitree_lerobot_motius.git
 cd unitree_lerobot_motius
 pip install -e .
-```
 
-### 2. Use a Profile in Runtime
-
-```python
+# Load a profile
+python -c "
 from unitree_lerobot import get_profile, profile_to_runtime_adapter
 
-profile = get_profile("gentle")
-
-# Map profile fields into a runtime-facing adapter surface
-runtime = profile_to_runtime_adapter(profile, task="handover")
-# runtime is a dict with keys: profile, profile_id, task,
-#   runtime_adapter{locomotion, arrival, handover, arm}, tags
-```
-
-### 3. Attach a Reference Clip to a Dataset Entry
-
-```python
-from unitree_lerobot import HumanReferenceClip, BehaviorDatasetEntry, TaskContext
-
-clip = HumanReferenceClip(
-    clip_id="handover_ref_001",
-    relative_path="references/handover_ref_001.mp4",
-    clip_duration_s=12.4,
-    context=TaskContext(task_type="handover", scene_type="hotel"),
-    behavior_tags=("warm", "patient", "soft"),
-)
-
-entry = BehaviorDatasetEntry(
-    entry_id="epi_001",
-    robot_type="Unitree_G1",
-    active_profile="gentle",
-    reference_clip=clip,
-)
-
-print(entry.dataset_key)
-# → Unitree_G1:gentle:handover:epi_001
+profile = get_profile('gentle')
+runtime = profile_to_runtime_adapter(profile, task='handover')
+print(runtime)
+"
 ```
 
 ---
@@ -107,51 +121,43 @@ print(entry.dataset_key)
 
 ```
 unitree_lerobot_motius/
-├── .github/workflows/test.yml    # CI: pytest + ruff
-├── README.md
 ├── unitree_lerobot/
-│   ├── __init__.py               # Public exports
-│   ├── motius_profiles.py        # Profile definitions & field values
-│   └── motius_schema.py          # Pydantic-like dataclass schemas
-├── examples/motius/
-│   ├── gentle_profile_runtime.json
-│   ├── reference_clip_example.json
-│   └── dataset_entry_example.json
-└── test/
-    └── test_motius_profiles.py   # Profile + schema unit tests
+│   ├── motius_profiles.py     # Profile definitions + Runtime Adapter
+│   └── motius_schema.py        # Reference Network data models
+├── examples/motius/            # JSON examples of runtime output
+├── test/                       # Unit tests
+└── README.md
 ```
 
 ---
 
 ## 📄 Paper
 
-This scaffold corresponds to the Motius prototype described in:
-
-> **"Motius: Interaction Profiles as a Behavior Layer for Human-Facing Robot Control"**
-> *Human–Robot Interaction 2026*
-> 🔗 [github.com/motiusrobotics/unitree_lerobot_motius](https://github.com/motiusrobotics/unitree_lerobot_motius)
-
-Key numbers from the paper (Standard vs. Gentle on Unitree G1):
-
-| Metric | Delta |
-|--------|-------|
-| Speed scale | −18.0% |
-| Pause duration | +110.0% |
-| Stopping distance | +18.7% |
-| End-effector smoothing | +6.7% |
-| Human preference (Gentle) | 92–96% across tasks |
+> **"Motius: Interaction Profiles as a Behavior Layer for Human-Facing Robot Control"**  
+> *Human–Robot Interaction 2026*  
+> 🔗 [arXivcoming] · [GitHub](https://github.com/motiusrobotics/unitree_lerobot_motius)
 
 ---
 
-## 🙏 Acknowledgement
+## 🤝 Participate
 
-This scaffold builds on:
+### 🗂 Upload Reference Clips
+Contributors upload short service interaction videos, attach behavior tags, and feed the Reference Network that trains and validates adaptive robot behavior.
 
-- [unitreerobotics/unitree_lerobot](https://github.com/unitreerobotics/unitree_lerobot) — LeRobot-based training framework for Unitree robots
-- [huggingface/lerobot](https://github.com/huggingface/lerobot) — Open-source robot learning framework
+### 🚀 Pilot Program
+Operators can reserve an early deployment path for adaptive behavior tuning, validation, and runtime integration.
+
+---
+
+## 🔗 Links
+
+- 🌐 [motiusrobotics.com](https://www.motiusrobotics.com/)
+- 📄 [Paper (arXiv)](https://arxiv.org)
+- 🤖 [Unitree LeRobot](https://github.com/unitreerobotics/unitree_lerobot)
+- 🧠 [LeRobot (HuggingFace)](https://github.com/huggingface/lerobot)
 
 ---
 
 ## 📄 License
 
-Apache 2.0
+Apache 2.0 — free to use, modify, and distribute.
