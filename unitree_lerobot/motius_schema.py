@@ -9,6 +9,7 @@ ALLOWED_TASK_TYPES = {
     "approach_stop",
     "wait_behavior",
     "corridor_etiquette",
+    "guide",
     "push_object",
 }
 
