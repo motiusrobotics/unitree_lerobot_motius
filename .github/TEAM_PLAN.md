@@ -1,90 +1,153 @@
-# Motius 团队协作计划
+# Motius Robotics 开发协作规范
 
-**日期**: 2026-05-14  
-**成员**: motiusrobotics (Bot/架构), Felix22r4 (开发主力)
-
----
-
-## 🤝 分工
-
-| 角色 | 负责内容 |
-|------|---------|
-| **motiusrobotics** | 架构设计、Profile 定义层、每日自动 commit、文档维护 |
-| **Felix22r4** | 感知层开发、LeRobot Adapter、Sim 环境搭建、控制器集成 |
+> **最后更新**：2026-05-17  
+> **成员**：OpenClaw Bot、Felix（GitHub: Felix22r4）、Richard
 
 ---
 
-## 📋 任务池 (GitHub Issues)
+## 1. 仓库与分支策略
 
-### Phase 1 — 核心适配层（本周）
+```
+main          ← 受保护分支，仅通过 PR 合并
+  └── dev     ← 集成分支，功能完成后合并至此
+        ├── feature/felix-xxx   ← Felix 开发分支
+        └── feature/auto-xxx   ← OpenClaw 每日自动任务
+```
 
-| # | 任务 | 负责人 | 状态 |
-|---|------|--------|------|
-| 1 | LeRobotProfileAdapter 完成 | Felix | 🔲 |
-| 2 | UnitreeG1PoseMixin 完成 | Felix | 🔲 |
-| 3 | ProfileValidator 单元测试补充 | Felix | 🔲 |
-| 4 | LeRobot Adapter 集成测试 | Felix | 🔲 |
-| 5 | Reference Network 数据模型完善 | motiusrobotics | 🔲 |
-| 6 | Perceive → Adapt 感知层骨架 | Felix | 🔲 |
-
-### Phase 2 — 感知层（下周）
-
-| # | 任务 | 负责人 | 状态 |
-|---|------|--------|------|
-| 7 | PerceptionController 骨架 | Felix | 🔲 |
-| 8 | 场景分类模型（3类：酒店/医院/公共） | Felix | 🔲 |
-| 9 | Profile Predictor MVP | Felix | 🔲 |
-| 10 | Camera + LiDAR 集成 | Felix | 🔲 |
-
-### Phase 3 — Reference Network（第三周）
-
-| # | 任务 | 负责人 | 状态 |
-|---|------|--------|------|
-| 11 | 视频上传 + 匿名化 pipeline | Felix | 🔲 |
-| 12 | AI 辅助标注工具 | Felix | 🔲 |
-| 13 | 数据集导出格式定义 | motiusrobotics | 🔲 |
-| 14 | 24人数据冷启动训练 | motiusrobotics | 🔲 |
+**规则**：
+- `main` 禁止直接 push，所有变更走 PR
+- `dev` 为默认开发分支
+- Feature branch 从 `dev` checkout，PR 也 merge 到 `dev`
+- `dev` 稳定后合并入 `main`（每周或每两周一次）
 
 ---
 
-## 🔄 协作流程
+## 2. 成员分工
 
-1. **每日**: motiusrobotics 定时 commit（Profile 层改动）
-2. **每日**: Felix 自主开发 commit（感知+适配层）
-3. **每周一**: 同步会议（Issue 评论确认进度）
-4. **每周五**: PR Review + 合并
+### OpenClaw（自动化）
+- 每日北京时间 09:00 自动 commit（cron: `0 1 * * *`）
+- 任务轮转（7天一循环）
+- Code review PRs
+- 维护 CI/CD pipeline
+
+### Felix
+- 手动开发功能模块
+- 从 `dev` checkout 分支，开发完成后提 PR
+- 响应 review 意见
+
+### Richard
+- 架构决策
+- Code review 最终审批
+- 优先级与任务分配
 
 ---
 
-## 📁 Felix 开发环境
+## 3. 当前模块结构
 
-```bash
-# Clone 主项目（forked）
-git clone https://github.com/Felix22r4/unitree_lerobot_motius.git
-cd unitree_lerobot_motius
-git remote add upstream https://github.com/motiusrobotics/unitree_lerobot_motius.git
-
-# 添加 upstream 后
-git fetch upstream
-git checkout main
-git merge upstream/main  # 同步 motiusrobotics 最新改动
+```
+unitree_lerobot/
+├── __init__.py              # API 导出
+├── motius_schema.py         # 数据 schema 定义
+├── motius_profiles.py       # 场景 profile 运行时
+├── profile_validator.py     # 边界检查（OpenClaw Task 1）
+├── lerobot/
+│   └── adapter.py           # LeRobot 适配器（待开发）
+examples/
+├── motius/
+│   ├── dataset_entry_example.json
+│   ├── gentle_profile_runtime.json
+│   └── hospitality_profile_runtime.json
+test/
+├── test_motius_profiles.py
+└── test_lerobot_adapter.py
 ```
 
 ---
 
-## 📦 Felix Fork 的仓库（参考学习）
+## 4. Felix 开发任务分配
 
-- `Felix22r4/habitat-lab` — 仿真环境
-- `Felix22r4/dm_control` — 控制框架
-- `Felix22r4/webots_ros` — Webots ROS 集成
+| 模块 | 文件 | 优先级 | 状态 |
+|------|------|--------|------|
+| LeRobot 适配器核心 | `lerobot/adapter.py` | P0 | 待认领 |
+| 动作序列播放器 | `lerobot/player.py` | P1 | 待认领 |
+| 单元测试补全 | `test/test_lerobot_adapter.py` | P1 | 待补全 |
+| README API 文档 | `README.md` | P2 | 待补充 |
+
+**建议 Felix 从 P0 开始**：`lerobot/adapter.py` 实现 LeRobotProfileAdapter 类，参考 `motius_profiles.py` 中的 schema。
 
 ---
 
-## 📊 目标里程碑
+## 5. Felix 本地开发配置
 
-| 日期 | 里程碑 |
-|------|--------|
-| 2026-05-21 | LeRobot Adapter 在 Sim 中跑通闭环 |
-| 2026-05-28 | PerceptionController 骨架 + Profile Predictor MVP |
-| 2026-06-04 | 视频上传 pipeline 上线 + 5 条真实数据入库 |
-| 2026-06-30 | arXiv 论文提交 + 机器人真机演示视频 |
+### 添加 remote（推送用）
+```bash
+git remote set-url origin https://Felix22r4:<FELIX_GITHUB_TOKEN>@github.com/motiusrobotics/unitree_lerobot_motius.git
+```
+
+### 开发流程
+```bash
+# 1. 克隆仓库（如尚未克隆）
+git clone https://github.com/motiusrobotics/unitree_lerobot_motius.git
+cd unitree_lerobot_motius
+
+# 2. 从 dev 创建功能分支
+git checkout dev
+git checkout -b feature/felix-lerobot-adapter
+
+# 3. 开发、commit
+git add .
+git commit -m "feat(lerobot): initial LeRobotProfileAdapter draft"
+
+# 4. 推送分支
+git push -u origin feature/felix-lerobot-adapter
+
+# 5. 在 GitHub 提 PR 到 dev 分支
+```
+
+### GitHub Token
+- **GitHub**：`https://github.com/Felix22r4`
+- **Token**：`<FELIX_GITHUB_TOKEN>`
+
+---
+
+## 6. PR 流程
+
+```
+Felix: 创建 PR → OpenClaw: 自动 review → Richard: 最终审批 → 合并到 dev
+```
+
+PR 模板：
+```markdown
+## 实现内容
+...
+
+## 测试情况
+...
+
+## 关联任务
+Closes #...
+```
+
+---
+
+## 7. 当前每日自动任务（OpenClaw）
+
+任务轮转（7天一循环，北京时间 09:00）：
+
+| Day | Task | 内容 |
+|-----|------|------|
+| 0 | LeRobotProfileAdapter 核心类 | 核心类开发 |
+| 1 | ProfileValidator 边界检查 | 边界检查 |
+| 2 | UnitreeG1PoseMixin | 身体姿势扩展 |
+| 3 | 新增 guide task type | Schema 扩展 |
+| 4 | LeRobot Adapter 集成测试 | 测试 |
+| 5 | README 架构图扩展 | 文档 |
+| 6 | __init__.py API 导出更新 | API 导出 |
+
+---
+
+## 8. 仓库信息
+
+- **协作文档**：`https://github.com/motiusrobotics/unitree_lerobot_motius/blob/main/.github/TEAM_PLAN.md`
+- **仓库**：`https://github.com/motiusrobotics/unitree_lerobot_motius`
+- **开发脚本**：`/root/unitree_lerobot_motius/.github/scripts/daily_dev.sh`
