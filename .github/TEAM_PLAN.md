@@ -1,7 +1,7 @@
 # Motius Robotics 开发协作规范
 
 > **最后更新**：2026-05-17  
-> **成员**：OpenClaw Bot、Felix（GitHub: Felix22r4）、Richard
+> **成员**：OpenClaw Bot、Felix（GitHub: Felix22r4）
 
 ---
 
@@ -34,11 +34,6 @@ main          ← 受保护分支，仅通过 PR 合并
 - 手动开发功能模块
 - 从 `dev` checkout 分支，开发完成后提 PR
 - 响应 review 意见
-
-### Richard
-- 架构决策
-- Code review 最终审批
-- 优先级与任务分配
 
 ---
 
@@ -106,14 +101,14 @@ git push -u origin feature/felix-lerobot-adapter
 
 ### GitHub Token
 - **GitHub**：`https://github.com/Felix22r4`
-- **Token**：`<FELIX_GITHUB_TOKEN>`
+- **Token**：`<FELIX_GITHUB_TOKEN>`（请用你的真实 token 替换）
 
 ---
 
 ## 6. PR 流程
 
 ```
-Felix: 创建 PR → OpenClaw: 自动 review → Richard: 最终审批 → 合并到 dev
+Felix: 创建 PR → OpenClaw: 自动 review → 合并到 dev
 ```
 
 PR 模板：
@@ -148,6 +143,6 @@ Closes #...
 
 ## 8. 仓库信息
 
-- **协作文档**：`https://github.com/motiusrobotics/unitree_lerobot_motius/blob/main/.github/TEAM_PLAN.md`
+- **协作文档**：`https://github.com/motiusrobotics/unitree_lerobot_motius/blob/dev/.github/TEAM_PLAN.md`
 - **仓库**：`https://github.com/motiusrobotics/unitree_lerobot_motius`
 - **开发脚本**：`/root/unitree_lerobot_motius/.github/scripts/daily_dev.sh`
